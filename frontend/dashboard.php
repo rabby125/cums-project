@@ -59,10 +59,15 @@ if (!isset($_SESSION['admin_id'])) {
             </tr>
         </thead>
         <tbody id="userTableBody">
-            <tr><td colspan="8">লোড হচ্ছে...</td></tr>
+            <tr><td colspan="8">Loading...</td></tr>
         </tbody>
     </table>
-
+    <div class="activity-section">
+        <h3>Latest Activity Logs</h3>
+        <div id="activityLogList" class="activity-list">
+            <p>Loading...</p>
+        </div>
+    </div>
     <script src="js/dashboard.js"></script>
 </body>
 </html>
