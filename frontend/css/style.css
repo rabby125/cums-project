@@ -1,0 +1,18 @@
+body { font-family: Arial, sans-serif; margin: 0; background: #f4f6f9; }
+.login-container { max-width: 350px; margin: 100px auto; text-align: center; }
+.login-container input, .login-container button { display: block; width: 90%; margin: 10px auto; padding: 8px; }
+
+.topbar { background: #1e2a4a; color: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; }
+.admin-info a { color: #ffb703; margin-left: 15px; text-decoration: none; }
+
+.stats-cards { display: flex; gap: 15px; padding: 20px; flex-wrap: wrap; }
+.card { background: white; padding: 15px 25px; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); min-width: 150px; }
+.card h4 { margin: 0 0 8px 0; color: #555; font-size: 14px; }
+.card p { margin: 0; font-size: 24px; font-weight: bold; color: #1e2a4a; }
+
+.search-panel { padding: 0 20px 20px; display: flex; gap: 10px; }
+.search-panel select, .search-panel input, .search-panel button { padding: 8px; }
+
+.user-table { width: calc(100% - 40px); margin: 0 20px; border-collapse: collapse; background: white; }
+.user-table th, .user-table td { padding: 10px; border-bottom: 1px solid #eee; text-align: left; }
+.user-table th { background: #f0f2f5; }
