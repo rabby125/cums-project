@@ -2,6 +2,7 @@
 session_start();
 header('Content-Type: application/json');
 require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../config/crypto.php';
 
 if (!isset($_SESSION['admin_id'])) {
     echo json_encode(["status" => "error", "message" => "Unauthorized"]);
@@ -37,7 +38,7 @@ try {
                escapeshellarg("verify") . " " .
                escapeshellarg($device['ip_address']) . " " .
                escapeshellarg($device['ssh_username']) . " " .
-               escapeshellarg($device['ssh_password']) . " " .
+               escapeshellarg(decryptPassword($device['ssh_password'])) . " " .
                escapeshellarg($device['vendor']) . " " .
                escapeshellarg($targetUsername);
 
