@@ -68,6 +68,6 @@ if (!isset($_SESSION['admin_id'])) {
             <p>Loading...</p>
         </div>
     </div>
-    <script src="js/dashboard.js"></script>
+    <script src="js/dashboard.js?v=2"></script>
 </body>
 </html>

@@ -29,6 +29,15 @@ async function loadDevices() {
             zoneSelect.appendChild(opt);
         });
 
+        // শুরুতেই সব ডিভাইস Device dropdown এ দেখানো (Zone সিলেক্ট না করলেও)
+        const deviceSelectInit = document.getElementById('deviceSelect');
+        allDevices.forEach(d => {
+            const opt = document.createElement('option');
+            opt.value = d.id;
+            opt.textContent = `${d.device_name} (${d.ip_address})`;
+            deviceSelectInit.appendChild(opt);
+        });
+
         zoneSelect.addEventListener('change', function() {
             const deviceSelect = document.getElementById('deviceSelect');
             deviceSelect.innerHTML = '<option value="">Select Device</option>';
