@@ -46,7 +46,11 @@ if (!isset($_SESSION['admin_id'])) {
         <input type="text" id="searchInput" placeholder="Enter Username / IP">
         <button id="searchBtn">Search</button>
     </div>
-
+    <div class="action-panel" id="actionPanel" style="display:none; padding: 0 20px 15px;">
+        <button id="createBtn">Create User</button>
+        <button id="deleteBtn">Delete User</button>
+        <button id="resetBtn">Reset Password</button>
+    </div>
     <table class="user-table">
         <thead>
             <tr>
