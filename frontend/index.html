@@ -32,7 +32,7 @@
                 const result = await response.json();
 
                 if (result.status === 'success') {
-                    window.location.href = 'dashboard.html';
+                   window.location.href = 'dashboard.php'; 
                 } else {
                     errorMsg.textContent = result.message;
                 }
