@@ -1,5 +1,15 @@
-config.php
+# Configuration and environment files
+*.env
 .env
-__pycache__/
+backend/config/db.php
+config.php
+
+# Python virtual environment & cache (সব ফোল্ডারের জন্য)
+**/venv/
+**/__pycache__/
 *.pyc
-venv/
+
+# IDEs & System files
+.vscode/
+.idea/
+.DS_Store
