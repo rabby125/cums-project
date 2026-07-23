@@ -46,13 +46,70 @@ def verify_user(ip, username, password, vendor, target_username, port=22):
     except Exception as e:
         return {"status": "error", "message": f"Command execution failed: {str(e)}"}
 
+def create_user(ip, username, password, vendor, target_username, target_password, port=22):
+    connection, error = connect_device(ip, username, password, vendor, port)
+    if error:
+        return {"status": "error", "message": error}
+
+    try:
+        # আপাতত জেনেরিক প্লেসহোল্ডার কমান্ড — ভেন্ডর অনুযায়ী পরে ঠিক করব
+        commands = [f"username {target_username} password {target_password}"]
+        output = connection.send_config_set(commands)
+        connection.disconnect()
+        return {"status": "success", "message": "User created", "output": output}
+    except Exception as e:
+        return {"status": "error", "message": f"Create failed: {str(e)}"}
+
+
+def delete_user(ip, username, password, vendor, target_username, port=22):
+    connection, error = connect_device(ip, username, password, vendor, port)
+    if error:
+        return {"status": "error", "message": error}
+
+    try:
+        commands = [f"no username {target_username}"]
+        output = connection.send_config_set(commands)
+        connection.disconnect()
+        return {"status": "success", "message": "User deleted", "output": output}
+    except Exception as e:
+        return {"status": "error", "message": f"Delete failed: {str(e)}"}
+
+def reset_password(ip, username, password, vendor, target_username, new_password, port=22):
+    connection, error = connect_device(ip, username, password, vendor, port)
+    if error:
+        return {"status": "error", "message": error}
+
+    try:
+        commands = [f"username {target_username} password {new_password}"]
+        output = connection.send_config_set(commands)
+        connection.disconnect()
+        return {"status": "success", "message": "Password reset", "output": output}
+    except Exception as e:
+        return {"status": "error", "message": f"Reset failed: {str(e)}"}
+
 
 if __name__ == "__main__":
-    # কমান্ড লাইন থেকে টেস্ট করার জন্য: python ssh_engine.py <ip> <username> <password> <vendor> <target_username>
-    if len(sys.argv) < 6:
+    # ব্যবহার: python ssh_engine.py <action> <ip> <ssh_user> <ssh_pass> <vendor> <target_username> [target_password]
+    if len(sys.argv) < 7:
         print(json.dumps({"status": "error", "message": "Missing arguments"}))
         sys.exit(1)
 
-    ip, uname, pwd, vendor, target = sys.argv[1:6]
-    result = verify_user(ip, uname, pwd, vendor, target)
-    print(json.dumps(result))
+    action = sys.argv[1]
+    ip, uname, pwd, vendor, target = sys.argv[2:7]
+
+    if action == "verify":
+        result = verify_user(ip, uname, pwd, vendor, target)
+    elif action == "create":
+        target_pwd = sys.argv[7] if len(sys.argv) > 7 else "default123"
+        result = create_user(ip, uname, pwd, vendor, target, target_pwd)
+    elif action == "delete":
+        result = delete_user(ip, uname, pwd, vendor, target)
+    elif action == "reset":
+        new_pwd = sys.argv[7] if len(sys.argv) > 7 else "newpass123"
+        result = reset_password(ip, uname, pwd, vendor, target, new_pwd)
+    else:
+        result = {"status": "error", "message": f"Unknown action: {action}"}
+
+    print(json.dumps(result))    
+
+
