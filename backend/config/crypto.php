@@ -1,5 +1,5 @@
 <?php
-define('ENCRYPTION_KEY', 'cums_secret_key_2026_change_this'); // ২৪+ ক্যারেক্টার হওয়া ভালো
+define('ENCRYPTION_KEY', 'cums_secret_key_2026_change_this_32ch');
 define('ENCRYPTION_METHOD', 'AES-256-CBC');
 
 function encryptPassword($plainText) {
@@ -9,11 +9,17 @@ function encryptPassword($plainText) {
     return base64_encode($iv . $encrypted);
 }
 
-function decryptPassword($encryptedText) {
-    $data = base64_decode($encryptedText);
+// এই ফাংশন encrypted অথবা plain টেক্সট দুটোই হ্যান্ডেল করে —
+// যদি decrypt ব্যর্থ হয় (মানে ডেটা আসলে plain text ছিল), তাহলে original ফিরিয়ে দেয়
+function getUsablePassword($storedValue) {
     $ivLength = openssl_cipher_iv_length(ENCRYPTION_METHOD);
+    $data = base64_decode($storedValue, true);
+    if ($data === false || strlen($data) <= $ivLength) {
+        return $storedValue; // plain text ছিল
+    }
     $iv = substr($data, 0, $ivLength);
     $encrypted = substr($data, $ivLength);
-    return openssl_decrypt($encrypted, ENCRYPTION_METHOD, ENCRYPTION_KEY, 0, $iv);
+    $decrypted = openssl_decrypt($encrypted, ENCRYPTION_METHOD, ENCRYPTION_KEY, 0, $iv);
+    return ($decrypted === false) ? $storedValue : $decrypted;
 }
 ?>

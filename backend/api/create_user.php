@@ -20,7 +20,7 @@ if (empty($deviceId) || empty($targetUsername) || empty($targetPassword)) {
 }
 
 try {
-    $stmt = $conn->prepare("SELECT * FROM devices WHERE id = :id LIMIT 1");
+    $stmt = $pdo->prepare("SELECT * FROM devices WHERE id = :id LIMIT 1");
     $stmt->bindParam(':id', $deviceId);
     $stmt->execute();
     $device = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -30,14 +30,14 @@ try {
         exit;
     }
 
-    $pythonPath = "python";
     $scriptPath = __DIR__ . "/../python/ssh_engine.py";
+    $realPassword = getUsablePassword($device['ssh_password']);
 
-    $command = escapeshellcmd($pythonPath) . " " . escapeshellarg($scriptPath) . " " .
+    $command = "python " . escapeshellarg($scriptPath) . " " .
                escapeshellarg("create") . " " .
                escapeshellarg($device['ip_address']) . " " .
                escapeshellarg($device['ssh_username']) . " " .
-               escapeshellarg(decryptPassword($device['ssh_password'])) . " " .
+               escapeshellarg($realPassword) . " " .
                escapeshellarg($device['vendor']) . " " .
                escapeshellarg($targetUsername) . " " .
                escapeshellarg($targetPassword);
@@ -50,8 +50,7 @@ try {
         exit;
     }
 
-    $logStmt = $conn->prepare("INSERT INTO activity_logs (admin_id, username_target, device_id, action, result, details) 
-                                VALUES (:admin_id, :username_target, :device_id, 'create', :result, :details)");
+    $logStmt = $pdo->prepare("INSERT INTO activity_logs (admin_id, username_target, device_id, action, result, details) VALUES (:admin_id, :username_target, :device_id, 'create', :result, :details)");
     $logStmt->execute([
         ':admin_id' => $_SESSION['admin_id'],
         ':username_target' => $targetUsername,
@@ -61,7 +60,6 @@ try {
     ]);
 
     echo json_encode($result);
-
 } catch (PDOException $e) {
     echo json_encode(["status" => "error", "message" => "Server error: " . $e->getMessage()]);
 }

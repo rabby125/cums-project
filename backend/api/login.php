@@ -3,7 +3,6 @@ session_start();
 header('Content-Type: application/json');
 require_once __DIR__ . '/../config/db.php';
 
-// শুধু POST রিকোয়েস্ট এক্সেপ্ট করবে
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(["status" => "error", "message" => "Invalid request method"]);
     exit;
@@ -19,7 +18,7 @@ if (empty($username) || empty($password)) {
 }
 
 try {
-    $stmt = $conn->prepare("SELECT * FROM admins WHERE username = :username LIMIT 1");
+    $stmt = $pdo->prepare("SELECT * FROM admins WHERE username = :username LIMIT 1");
     $stmt->bindParam(':username', $username);
     $stmt->execute();
     $admin = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -28,13 +27,7 @@ try {
         $_SESSION['admin_id'] = $admin['id'];
         $_SESSION['username'] = $admin['username'];
         $_SESSION['role'] = $admin['role'];
-
-        echo json_encode([
-            "status" => "success",
-            "message" => "Login successful",
-            "username" => $admin['username'],
-            "role" => $admin['role']
-        ]);
+        echo json_encode(["status" => "success", "message" => "Login successful", "username" => $admin['username'], "role" => $admin['role']]);
     } else {
         echo json_encode(["status" => "error", "message" => "Invalid username or password"]);
     }

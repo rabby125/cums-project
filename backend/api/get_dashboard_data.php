@@ -9,21 +9,16 @@ if (!isset($_SESSION['admin_id'])) {
 }
 
 try {
-    // মোট ডিভাইস
-    $totalDevices = $conn->query("SELECT COUNT(*) FROM devices")->fetchColumn();
-    $onlineDevices = $conn->query("SELECT COUNT(*) FROM devices WHERE status='online'")->fetchColumn();
-
-    // মোট অপারেশন (আজকের)
-    $todayOps = $conn->query("SELECT COUNT(*) FROM activity_logs WHERE DATE(created_at) = CURDATE()")->fetchColumn();
-
-    // ভেন্ডর সংখ্যা (ইউনিক)
-    $totalVendors = $conn->query("SELECT COUNT(DISTINCT vendor) FROM devices")->fetchColumn();
+    $totalDevices = $pdo->query("SELECT COUNT(*) FROM devices")->fetchColumn();
+    $onlineDevices = $pdo->query("SELECT COUNT(*) FROM devices WHERE status='online'")->fetchColumn();
+    $todayOps = $pdo->query("SELECT COUNT(*) FROM activity_logs WHERE DATE(created_at) = CURDATE()")->fetchColumn();
+    $totalVendors = $pdo->query("SELECT COUNT(DISTINCT vendor) FROM devices")->fetchColumn();
 
     echo json_encode([
         "status" => "success",
         "total_devices" => (int)$totalDevices,
         "online_devices" => (int)$onlineDevices,
-        "total_users" => 0,          // এটা পরে SSH দিয়ে রিয়েল-টাইমে গণনা হবে
+        "total_users" => 0,
         "total_ops" => (int)$todayOps,
         "total_vendors" => (int)$totalVendors
     ]);

@@ -22,22 +22,10 @@ if (!isset($_SESSION['admin_id'])) {
     </div>
 
     <div class="stats-cards">
-        <div class="card">
-            <h4>Connected Devices</h4>
-            <p id="statDevices">--</p>
-        </div>
-        <div class="card">
-            <h4>Live Users</h4>
-            <p id="statUsers">--</p>
-        </div>
-        <div class="card">
-            <h4>Today's Operations</h4>
-            <p id="statOps">--</p>
-        </div>
-        <div class="card">
-            <h4>Supported Vendors</h4>
-            <p id="statVendors">--</p>
-        </div>
+        <div class="card"><h4>Connected Devices</h4><p id="statDevices">--</p></div>
+        <div class="card"><h4>Live Users</h4><p id="statUsers">--</p></div>
+        <div class="card"><h4>Today's Operations</h4><p id="statOps">--</p></div>
+        <div class="card"><h4>Supported Vendors</h4><p id="statVendors">--</p></div>
     </div>
 
     <div class="search-panel">
@@ -46,28 +34,27 @@ if (!isset($_SESSION['admin_id'])) {
         <input type="text" id="searchInput" placeholder="Enter Username / IP">
         <button id="searchBtn">Search</button>
     </div>
-    <div class="action-panel" id="actionPanel" style="display:none; padding: 0 20px 15px;">
+
+    <div class="action-panel">
         <button id="createBtn">Create User</button>
         <button id="deleteBtn">Delete User</button>
         <button id="resetBtn">Reset Password</button>
     </div>
+
     <table class="user-table">
         <thead>
-            <tr>
-                <th>#</th><th>Username</th><th>Device</th><th>IP</th>
-                <th>Vendor</th><th>Zone</th><th>Status</th><th>Action</th>
-            </tr>
+            <tr><th>#</th><th>Username</th><th>Device</th><th>IP</th><th>Vendor</th><th>Zone</th><th>Status</th><th>Action</th></tr>
         </thead>
         <tbody id="userTableBody">
-            <tr><td colspan="8">Loading...</td></tr>
+            <tr><td colspan="8">লোড হচ্ছে...</td></tr>
         </tbody>
     </table>
+
     <div class="activity-section">
         <h3>Latest Activity Logs</h3>
-        <div id="activityLogList" class="activity-list">
-            <p>Loading...</p>
-        </div>
+        <div id="activityLogList" class="activity-list"><p>লোড হচ্ছে...</p></div>
     </div>
-    <script src="js/dashboard.js?v=2"></script>
+
+    <script src="js/dashboard.js?v=3"></script>
 </body>
 </html>

@@ -19,8 +19,7 @@ if (empty($deviceId) || empty($targetUsername)) {
 }
 
 try {
-    // ডিভাইসের তথ্য ডাটাবেজ থেকে আনা
-    $stmt = $conn->prepare("SELECT * FROM devices WHERE id = :id LIMIT 1");
+    $stmt = $pdo->prepare("SELECT * FROM devices WHERE id = :id LIMIT 1");
     $stmt->bindParam(':id', $deviceId);
     $stmt->execute();
     $device = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -30,30 +29,26 @@ try {
         exit;
     }
 
-    // Python script কে কল করা (ssh_engine.py)
-    $pythonPath = "python"; // যদি কাজ না করে, পুরো path দিতে হবে (নিচে নোট দেখুন)
     $scriptPath = __DIR__ . "/../python/ssh_engine.py";
+    $realPassword = getUsablePassword($device['ssh_password']);
 
-    $command = escapeshellcmd($pythonPath) . " " . escapeshellarg($scriptPath) . " " .
+    $command = "python " . escapeshellarg($scriptPath) . " " .
                escapeshellarg("verify") . " " .
                escapeshellarg($device['ip_address']) . " " .
                escapeshellarg($device['ssh_username']) . " " .
-               escapeshellarg(decryptPassword($device['ssh_password'])) . " " .
+               escapeshellarg($realPassword) . " " .
                escapeshellarg($device['vendor']) . " " .
                escapeshellarg($targetUsername);
 
-    $output = shell_exec($command . " 2>&1"); // 2>&1 দিয়ে এরর মেসেজও ধরা হচ্ছে
+    $output = shell_exec($command . " 2>&1");
     $result = json_decode($output, true);
 
     if ($result === null) {
-        // Python থেকে ঠিকমতো JSON না আসলে raw output দেখাবে (ডিবাগের জন্য)
         echo json_encode(["status" => "error", "message" => "Python script error", "raw_output" => $output]);
         exit;
     }
 
-    // অ্যাক্টিভিটি লগে এন্ট্রি
-    $logStmt = $conn->prepare("INSERT INTO activity_logs (admin_id, username_target, device_id, action, result, details) 
-                                VALUES (:admin_id, :username_target, :device_id, 'verify', :result, :details)");
+    $logStmt = $pdo->prepare("INSERT INTO activity_logs (admin_id, username_target, device_id, action, result, details) VALUES (:admin_id, :username_target, :device_id, 'verify', :result, :details)");
     $logStmt->execute([
         ':admin_id' => $_SESSION['admin_id'],
         ':username_target' => $targetUsername,
@@ -63,7 +58,6 @@ try {
     ]);
 
     echo json_encode($result);
-
 } catch (PDOException $e) {
     echo json_encode(["status" => "error", "message" => "Server error: " . $e->getMessage()]);
 }

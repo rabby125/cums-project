@@ -2,22 +2,17 @@ import sys
 import json
 from netmiko import ConnectHandler
 from netmiko.exceptions import NetmikoTimeoutException, NetmikoAuthenticationException
-from vendor_commands import get_device_type
+from vendor_commands import (
+    get_device_type, get_verify_command,
+    get_create_commands, get_delete_commands, get_reset_password_commands
+)
 
 def connect_device(ip, username, password, vendor, port=22):
     device_type = get_device_type(vendor)
     if not device_type:
         return None, f"Unsupported vendor: {vendor}"
-
-    device = {
-        "device_type": device_type,
-        "ip": ip,
-        "username": username,
-        "password": password,
-        "port": port,
-        "timeout": 10,
-    }
-
+    device = {"device_type": device_type, "ip": ip, "username": username,
+              "password": password, "port": port, "timeout": 10}
     try:
         connection = ConnectHandler(**device)
         return connection, None
@@ -28,17 +23,14 @@ def connect_device(ip, username, password, vendor, port=22):
     except Exception as e:
         return None, f"Connection error: {str(e)}"
 
-
 def verify_user(ip, username, password, vendor, target_username, port=22):
     connection, error = connect_device(ip, username, password, vendor, port)
     if error:
         return {"status": "error", "message": error}
-
     try:
-        # আপাতত সব ভেন্ডরের জন্য একটা জেনেরিক টেস্ট কমান্ড (পরে ভেন্ডর-স্পেসিফিক করব)
-        output = connection.send_command("show run | include username")
+        cmd = get_verify_command(vendor)
+        output = connection.send_command(cmd)
         connection.disconnect()
-
         if target_username in output:
             return {"status": "success", "message": "User found", "output": output}
         else:
@@ -50,24 +42,20 @@ def create_user(ip, username, password, vendor, target_username, target_password
     connection, error = connect_device(ip, username, password, vendor, port)
     if error:
         return {"status": "error", "message": error}
-
     try:
-        # আপাতত জেনেরিক প্লেসহোল্ডার কমান্ড — ভেন্ডর অনুযায়ী পরে ঠিক করব
-        commands = [f"username {target_username} password {target_password}"]
+        commands = get_create_commands(vendor, target_username, target_password)
         output = connection.send_config_set(commands)
         connection.disconnect()
         return {"status": "success", "message": "User created", "output": output}
     except Exception as e:
         return {"status": "error", "message": f"Create failed: {str(e)}"}
 
-
 def delete_user(ip, username, password, vendor, target_username, port=22):
     connection, error = connect_device(ip, username, password, vendor, port)
     if error:
         return {"status": "error", "message": error}
-
     try:
-        commands = [f"no username {target_username}"]
+        commands = get_delete_commands(vendor, target_username)
         output = connection.send_config_set(commands)
         connection.disconnect()
         return {"status": "success", "message": "User deleted", "output": output}
@@ -78,25 +66,20 @@ def reset_password(ip, username, password, vendor, target_username, new_password
     connection, error = connect_device(ip, username, password, vendor, port)
     if error:
         return {"status": "error", "message": error}
-
     try:
-        commands = [f"username {target_username} password {new_password}"]
+        commands = get_reset_password_commands(vendor, target_username, new_password)
         output = connection.send_config_set(commands)
         connection.disconnect()
         return {"status": "success", "message": "Password reset", "output": output}
     except Exception as e:
         return {"status": "error", "message": f"Reset failed: {str(e)}"}
 
-
 if __name__ == "__main__":
-    # ব্যবহার: python ssh_engine.py <action> <ip> <ssh_user> <ssh_pass> <vendor> <target_username> [target_password]
     if len(sys.argv) < 7:
         print(json.dumps({"status": "error", "message": "Missing arguments"}))
         sys.exit(1)
-
     action = sys.argv[1]
     ip, uname, pwd, vendor, target = sys.argv[2:7]
-
     if action == "verify":
         result = verify_user(ip, uname, pwd, vendor, target)
     elif action == "create":
@@ -109,7 +92,4 @@ if __name__ == "__main__":
         result = reset_password(ip, uname, pwd, vendor, target, new_pwd)
     else:
         result = {"status": "error", "message": f"Unknown action: {action}"}
-
-    print(json.dumps(result))    
-
-
+    print(json.dumps(result))

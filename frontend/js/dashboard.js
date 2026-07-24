@@ -29,17 +29,15 @@ async function loadDevices() {
             zoneSelect.appendChild(opt);
         });
 
-        // শুরুতেই সব ডিভাইস Device dropdown এ দেখানো (Zone সিলেক্ট না করলেও)
-        const deviceSelectInit = document.getElementById('deviceSelect');
+        const deviceSelect = document.getElementById('deviceSelect');
         allDevices.forEach(d => {
             const opt = document.createElement('option');
             opt.value = d.id;
             opt.textContent = `${d.device_name} (${d.ip_address})`;
-            deviceSelectInit.appendChild(opt);
+            deviceSelect.appendChild(opt);
         });
 
         zoneSelect.addEventListener('change', function() {
-            const deviceSelect = document.getElementById('deviceSelect');
             deviceSelect.innerHTML = '<option value="">Select Device</option>';
             const filtered = this.value ? allDevices.filter(d => d.zone === this.value) : allDevices;
             filtered.forEach(d => {
@@ -75,7 +73,6 @@ async function loadActivityLogs() {
             </div>
         `).join('');
     } catch (err) {
-        console.error('Activity logs load failed:', err);
         document.getElementById('activityLogList').innerHTML = '<p style="padding:15px;">লোড করতে সমস্যা হয়েছে</p>';
     }
 }
@@ -88,9 +85,8 @@ document.getElementById('searchBtn').addEventListener('click', async function() 
     tableBody.innerHTML = '<tr><td colspan="8">সার্চ হচ্ছে...</td></tr>';
     try {
         const res = await fetch('../backend/api/search_user.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ device_id: deviceId, username: username })
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ device_id: deviceId, username })
         });
         const result = await res.json();
         const device = allDevices.find(d => d.id == deviceId);
@@ -108,9 +104,10 @@ document.getElementById('searchBtn').addEventListener('click', async function() 
 });
 
 function getSearchContext() {
-    const deviceId = document.getElementById('deviceSelect').value;
-    const username = document.getElementById('searchInput').value.trim();
-    return { deviceId, username };
+    return {
+        deviceId: document.getElementById('deviceSelect').value,
+        username: document.getElementById('searchInput').value.trim()
+    };
 }
 
 document.getElementById('createBtn').addEventListener('click', async function() {
