@@ -20,6 +20,17 @@ def get_verify_command(vendor_name):
     }
     return commands.get(vendor, "show run")
 
+def get_list_users_command(vendor_name):
+    vendor = vendor_name.lower()
+    commands = {
+        "huawei": "display current-configuration | include local-user",
+        "cisco": "show running-config | include username",
+        "mikrotik": "/user print detail without-paging",
+        "juniper": "show configuration system login user",
+        "arista": "show running-config | include username",
+    }
+    return commands.get(vendor, "show run")
+
 def get_create_commands(vendor_name, username, password):
     vendor = vendor_name.lower()
     if vendor == "huawei":

@@ -11,10 +11,9 @@ if (!isset($_SESSION['admin_id'])) {
 
 $data = json_decode(file_get_contents("php://input"), true);
 $deviceId = $data['device_id'] ?? '';
-$targetUsername = trim($data['username'] ?? '');
 
-if (empty($deviceId) || empty($targetUsername)) {
-    echo json_encode(["status" => "error", "message" => "Device and username required"]);
+if (empty($deviceId)) {
+    echo json_encode(["status" => "error", "message" => "Device প্রয়োজন"]);
     exit;
 }
 
@@ -33,13 +32,13 @@ try {
     $realPassword = getUsablePassword($device['ssh_password']);
 
     $command = "python " . escapeshellarg($scriptPath) . " " .
-           escapeshellarg("verify") . " " .
-           escapeshellarg($device['ip_address']) . " " .
-           escapeshellarg($device['ssh_username']) . " " .
-           escapeshellarg($realPassword) . " " .
-           escapeshellarg($device['vendor']) . " " .
-           escapeshellarg($targetUsername) . " " .
-           escapeshellarg("--port=" . ($device['ssh_port'] ?? 22));
+               escapeshellarg("list") . " " .
+               escapeshellarg($device['ip_address']) . " " .
+               escapeshellarg($device['ssh_username']) . " " .
+               escapeshellarg($realPassword) . " " .
+               escapeshellarg($device['vendor']) . " " .
+               escapeshellarg("dummy") . " " .
+               escapeshellarg("--port=" . ($device['ssh_port'] ?? 22));
 
     $output = shell_exec($command . " 2>&1");
     $result = json_decode($output, true);
@@ -49,10 +48,9 @@ try {
         exit;
     }
 
-    $logStmt = $pdo->prepare("INSERT INTO activity_logs (admin_id, username_target, device_id, action, result, details) VALUES (:admin_id, :username_target, :device_id, 'verify', :result, :details)");
+    $logStmt = $pdo->prepare("INSERT INTO activity_logs (admin_id, username_target, device_id, action, result, details) VALUES (:admin_id, '(all users)', :device_id, 'list_users', :result, :details)");
     $logStmt->execute([
         ':admin_id' => $_SESSION['admin_id'],
-        ':username_target' => $targetUsername,
         ':device_id' => $deviceId,
         ':result' => $result['status'],
         ':details' => $result['message'] ?? ''

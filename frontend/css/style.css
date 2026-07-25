@@ -33,3 +33,14 @@ body { font-family: Arial, sans-serif; margin: 0; background: #f4f6f9; }
 .result-success { color: green; font-weight: bold; }
 .result-error { color: red; font-weight: bold; }
 .result-not_found { color: orange; font-weight: bold; }
+
+.modal-overlay {
+    position: fixed; top:0; left:0; width:100%; height:100%;
+    background: rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:1000;
+}
+.modal-box {
+    background: white; padding: 25px; border-radius: 8px; width: 320px;
+    display: flex; flex-direction: column; gap: 10px;
+}
+.modal-box h3 { margin: 0 0 10px 0; color: #1e2a4a; }
+.modal-box input, .modal-box select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }

@@ -34,14 +34,14 @@ try {
     $realPassword = getUsablePassword($device['ssh_password']);
 
     $command = "python " . escapeshellarg($scriptPath) . " " .
-               escapeshellarg("reset") . " " .
-               escapeshellarg($device['ip_address']) . " " .
-               escapeshellarg($device['ssh_username']) . " " .
-               escapeshellarg($realPassword) . " " .
-               escapeshellarg($device['vendor']) . " " .
-               escapeshellarg($targetUsername) . " " .
-               escapeshellarg($newPassword);
-
+           escapeshellarg("verify") . " " .
+           escapeshellarg($device['ip_address']) . " " .
+           escapeshellarg($device['ssh_username']) . " " .
+           escapeshellarg($realPassword) . " " .
+           escapeshellarg($device['vendor']) . " " .
+           escapeshellarg($targetUsername) . " " .
+           escapeshellarg("--port=" . ($device['ssh_port'] ?? 22));
+            " . escapeshellarg("--port=" . ($device['ssh_port'] ?? 22))
     $output = shell_exec($command . " 2>&1");
     $result = json_decode($output, true);
 
